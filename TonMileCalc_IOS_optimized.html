@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Ton-Miles Calculator</title>
+  <style>
+    body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Arial, sans-serif; padding: 16px; margin: 0; background-color: #f9f9f9; }
+    .container { max-width: 480px; margin: auto; background: #fff; border-radius: 12px; padding: 16px; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+    h1 { font-size: 20px; text-align: center; margin-bottom: 16px; }
+    label { font-size: 16px; margin-top: 12px; display: block; }
+    input[type="number"] { width: 100%; padding: 12px; margin-top: 6px; font-size: 16px; border: 1px solid #ccc; border-radius: 8px; box-sizing: border-box; -webkit-appearance: none; }
+    #calculateBtn { width: 100%; padding: 14px; margin-top: 20px; font-size: 18px; background-color: #007aff; color: white; border: none; border-radius: 10px; text-align: center; display: block; cursor: pointer; }
+    .result { margin-top: 24px; font-size: 16px; line-height: 1.5; }
+    .result div { margin-bottom: 8px; }
+    footer { margin-top: 32px; font-size: 14px; color: red; font-style: italic; text-align: center; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Ton-Miles Calculator</h1>
+    <div class="inputs">
+      <label>Drill-Pipe/Tubing Weight (lbs/ft)
+        <input type="number" id="dpWeight" inputmode="decimal" step="any">
+      </label>
+      <label>Round-Trip Length (ft)
+        <input type="number" id="rtLength" inputmode="decimal" step="any">
+      </label>
+      <label>Average Stand Length (ft)
+        <input type="number" id="standLength" inputmode="decimal" step="any">
+      </label>
+      <label>Block Weight (lbs)
+        <input type="number" id="blockWeight" inputmode="decimal" step="any">
+      </label>
+      <label>BHA Weight (lbs)
+        <input type="number" id="bhaWeight" inputmode="decimal" step="any">
+      </label>
+      <label>Mud Weight (ppg)
+        <input type="number" id="mudWeight" inputmode="decimal" step="any">
+      </label>
+      <label>Drilling Depth Start (ft)
+        <input type="number" id="beginDepth" inputmode="decimal" step="any">
+      </label>
+      <label>Total Depth Drilled (ft)
+        <input type="number" id="endDepth" inputmode="decimal" step="any">
+      </label>
+    </div>
+    <button id="calculateBtn" type="button" onclick="calculate()" ontouchstart="calculate()">Calculate</button>
+    <div class="result" id="results">
+      <div>Buoyancy Factor (f): <span id="submersionFactor">-</span></div>
+      <div>Round-Trip Ton-Miles (RTTM): <span id="rttm">-</span></div>
+      <div>Half-Trip Ton-Miles (HTTM): <span id="httm">-</span></div>
+      <div>Ton-Miles at Start of Drilling: <span id="tmStart">-</span></div>
+      <div>Ton-Miles at Achieved TD: <span id="tmEnd">-</span></div>
+      <div>Drilling Ton-Miles (DTM): <span id="dtm">-</span></div>
+    </div>
+    <footer>
+      <div>**It is generally recommended to round up results to the next whole number.**</div>
+      <div>**Disclaimer, we assume no responsibility for any miscalculation, please occasionally double check by hand calculating.**</div>
+    </footer>
+  </div>
+  <script>
+    function calculate() {
+      const dp = parseFloat(document.getElementById('dpWeight').value) || 0;
+      const L = parseFloat(document.getElementById('rtLength').value) || 0;
+      const S = parseFloat(document.getElementById('standLength').value) || 0;
+      const B = parseFloat(document.getElementById('blockWeight').value) || 0;
+      const BHA = parseFloat(document.getElementById('bhaWeight').value) || 0;
+      const mud = parseFloat(document.getElementById('mudWeight').value) || 0;
+      const Dstart = parseFloat(document.getElementById('beginDepth').value) || 0;
+      const Dend = parseFloat(document.getElementById('endDepth').value) || 0;
+
+      const f = (65.44 - mud) / 65.44;
+      const rttm = (dp * f) * L * (L + S) / 10560000 + L * (B + 0.5 * BHA) / 2640000;
+      const httm = rttm / 2;
+      const tmStart = (dp * f) * Dstart * (Dstart + S) / 10560000 + Dstart * (B + 0.5 * BHA) / 2640000;
+      const tmEnd = (dp * f) * Dend * (Dend + S) / 10560000 + Dend * (B + 0.5 * BHA) / 2640000;
+      const dtm = 3 * (tmEnd - tmStart);
+
+      document.getElementById('submersionFactor').innerText = f.toFixed(6);
+      document.getElementById('rttm').innerText = rttm.toFixed(6);
+      document.getElementById('httm').innerText = httm.toFixed(6);
+      document.getElementById('tmStart').innerText = tmStart.toFixed(6);
+      document.getElementById('tmEnd').innerText = tmEnd.toFixed(6);
+      document.getElementById('dtm').innerText = dtm.toFixed(6);
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const btn = document.getElementById('calculateBtn');
+      btn.addEventListener('click', calculate);
+      btn.addEventListener('touchend', calculate);
+      btn.addEventListener('pointerup', calculate);
+    });
+  </script>
+</body>
+</html>
+
